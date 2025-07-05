@@ -1,8 +1,16 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Login Admin</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login Admin - Stok Gudang</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
@@ -12,7 +20,7 @@
       authDomain: "stok-gudang-7d7bd.firebaseapp.com",
       databaseURL: "https://stok-gudang-7d7bd-default-rtdb.asia-southeast1.firebasedatabase.app",
       projectId: "stok-gudang-7d7bd",
-      storageBucket: "stok-gudang-7d7bd.firebasestorage.app",
+      storageBucket: "stok-gudang-7d7bd.appspot.com",
       messagingSenderId: "231635974096",
       appId: "1:231635974096:web:a04d725aca41b6eeb4abd5"
     };
@@ -20,20 +28,45 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    window.login = () => {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
+    document.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById("loginForm");
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const email = form.email.value;
+        const password = form.password.value;
 
-      signInWithEmailAndPassword(auth, email, password)
-        .then(() => window.location.href = "/")
-        .catch(err => alert("Login gagal: " + err.message));
-    };
+        signInWithEmailAndPassword(auth, email, password)
+          .then(() => window.location.href = "/dashboard")
+          .catch(error => {
+            document.getElementById("errorMsg").textContent = error.message;
+          });
+      });
+    });
   </script>
 </head>
-<body>
-  <h2>Login Admin</h2>
-  <input type="email" id="email" placeholder="Email"><br>
-  <input type="password" id="password" placeholder="Password"><br>
-  <button onclick="login()">Login</button>
+<body class="min-h-screen bg-gradient-to-br from-blue-100 via-white to-blue-200 flex items-center justify-center">
+
+  <div class="bg-white shadow-xl rounded-xl p-8 w-full max-w-md border border-blue-200">
+    <h2 class="text-3xl font-bold text-center text-blue-700 mb-6">🔐 Login Admin</h2>
+    <p id="errorMsg" class="text-red-600 text-sm mb-2 text-center"></p>
+    <form id="loginForm" class="space-y-5">
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+        <input type="email" id="email" name="email" required
+          class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400" />
+      </div>
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+        <input type="password" id="password" name="password" required
+          class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400" />
+      </div>
+      <button type="submit"
+        class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition font-semibold shadow">
+        Masuk
+      </button>
+    </form>
+    <p class="text-xs text-gray-400 mt-6 text-center">&copy; 2025 Stok Gudang | Azam Syifa</p>
+  </div>
+
 </body>
 </html>
