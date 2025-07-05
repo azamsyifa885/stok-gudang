@@ -23,17 +23,27 @@
     onAuthStateChanged(auth, user => {
       if (!user) {
         alert("Silakan login terlebih dahulu");
-        window.location.href = "index.html";
+        window.location.href = "/"; // ✅ ubah ke root
       }
     });
 
     window.keluar = () => {
-      signOut(auth).then(() => window.location.href = "index.html");
+      signOut(auth).then(() => window.location.href = "/"); // ✅ ubah juga ini
     };
   </script>
 </head>
 <body>
   <h2>Selamat datang di Dashboard</h2>
+
+  <!-- Navigasi -->
+  <nav>
+    <a href="/barang">Barang</a> |
+    <a href="/stok-masuk">Stok Masuk</a> |
+    <a href="/stok-keluar">Stok Keluar</a> |
+    <a href="/laporan">Laporan</a>
+  </nav>
+
+  <br>
   <button onclick="keluar()">Logout</button>
 </body>
 </html>
