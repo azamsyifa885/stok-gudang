@@ -79,13 +79,15 @@
 <body class="flex bg-gray-100 min-h-screen font-sans">
 
   <!-- Sidebar -->
-  <aside class="w-64 bg-white shadow-md min-h-screen p-6 space-y-4">
-    <h1 class="text-2xl font-bold text-blue-600 mb-6">📦 Stok Gudang</h1>
+  <aside class="w-64 bg-white shadow-lg p-6 hidden md:block">
+    <h2 class="text-xl font-bold text-blue-600 mb-6">📦 Stok Gudang</h2>
     <nav class="space-y-2">
-      <a href="dashboard.html" class="block px-4 py-2 rounded hover:bg-blue-100">🏠 Dashboard</a>
-      <a href="barang.html" class="block px-4 py-2 rounded hover:bg-blue-100">📋 Manajemen Barang</a>
-      <a href="stok-masuk.html" class="block px-4 py-2 rounded bg-blue-100 text-blue-800 font-semibold">➕ Stok Masuk</a>
-      <a href="#" onclick="keluar()" class="block px-4 py-2 rounded hover:bg-red-100 text-red-600">🚪 Logout</a>
+      <a href="/dashboard" class="block px-4 py-2 rounded bg-blue-100 text-blue-800 font-semibold">🏠 Dashboard</a>
+      <a href="/barang" class="block px-4 py-2 rounded hover:bg-blue-50">📋 Manajemen Barang</a>
+      <a href="/stok-masuk" class="block px-4 py-2 rounded hover:bg-blue-50">➕ Stok Masuk</a>
+      <a href="/stok-keluar" class="block px-4 py-2 rounded hover:bg-blue-50">📤 Stok Keluar</a>
+      <a href="/laporan" class="block px-4 py-2 rounded hover:bg-blue-50">📊 Laporan</a>
+      <button onclick="keluar()" class="w-full text-left px-4 py-2 rounded hover:bg-red-50 text-red-600 mt-4">🚪 Logout</button>
     </nav>
   </aside>
 
