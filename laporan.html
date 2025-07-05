@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Laporan Stok</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDZghMOYeTPRqsJuQ6dklddKL5KC-2NexA",
+      authDomain: "stok-gudang-7d7bd.firebaseapp.com",
+      databaseURL: "https://stok-gudang-7d7bd-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "stok-gudang-7d7bd",
+      storageBucket: "stok-gudang-7d7bd.appspot.com",
+      messagingSenderId: "231635974096",
+      appId: "1:231635974096:web:a04d725aca41b6eeb4abd5"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    onAuthStateChanged(auth, user => {
+      if (!user) {
+        alert("Silakan login terlebih dahulu");
+        window.location.href = "index.html";
+      }
+    });
+
+    window.keluar = () => signOut(auth).then(() => window.location.href = "index.html");
+
+    const barangMap = {};
+
+    const barangRef = ref(db, "barang");
+    onValue(barangRef, snapshot => {
+      const data = snapshot.val();
+      for (const id in data) {
+        barangMap[id] = data[id].nama;
+      }
+      tampilkanLaporan();
+    });
+
+    function tampilkanLaporan() {
+      const searchInput = document.getElementById("search");
+      const tanggalDari = document.getElementById("tanggal-dari");
+      const tanggalSampai = document.getElementById("tanggal-sampai");
+
+      const renderData = (data, tbody) => {
+        tbody.innerHTML = "";
+        const keyword = (searchInput.value || "").toLowerCase();
+        const dari = tanggalDari.value;
+        const sampai = tanggalSampai.value;
+
+        Object.values(data || {}).forEach(item => {
+          const nama = barangMap[item.barang_id] || '❓';
+          const tanggalItem = new Date(item.tanggal);
+
+          if (!nama.toLowerCase().includes(keyword)) return;
+          if (dari && tanggalItem < new Date(dari)) return;
+          if (sampai && tanggalItem > new Date(sampai + "T23:59:59")) return;
+
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td class="px-4 py-2">${nama}</td>
+            <td class="px-4 py-2 text-center">${item.jumlah}</td>
+            <td class="px-4 py-2 text-sm">${tanggalItem.toLocaleString()}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      };
+
+      const masukRef = ref(db, "stok_masuk");
+      const keluarRef = ref(db, "stok_keluar");
+
+      let dataMasuk = {};
+      let dataKeluar = {};
+
+      onValue(masukRef, snapshot => {
+        dataMasuk = snapshot.val();
+        renderData(dataMasuk, document.getElementById("laporan-masuk"));
+      });
+
+      onValue(keluarRef, snapshot => {
+        dataKeluar = snapshot.val();
+        renderData(dataKeluar, document.getElementById("laporan-keluar"));
+      });
+
+      const refresh = () => {
+        renderData(dataMasuk, document.getElementById("laporan-masuk"));
+        renderData(dataKeluar, document.getElementById("laporan-keluar"));
+      };
+
+      searchInput.addEventListener("input", refresh);
+      tanggalDari.addEventListener("change", refresh);
+      tanggalSampai.addEventListener("change", refresh);
+    }
+  </script>
+</head>
+<body class="flex bg-gray-100 min-h-screen font-sans">
+
+  <!-- Sidebar -->
+  <aside class="w-64 bg-white shadow-md min-h-screen p-6 space-y-4">
+    <h1 class="text-2xl font-bold text-blue-600 mb-6">📦 Stok Gudang</h1>
+    <nav class="space-y-2">
+      <a href="dashboard.html" class="block px-4 py-2 rounded hover:bg-blue-100">🏠 Dashboard</a>
+      <a href="barang.html" class="block px-4 py-2 rounded hover:bg-blue-100">📋 Manajemen Barang</a>
+      <a href="stok-masuk.html" class="block px-4 py-2 rounded hover:bg-blue-100">➕ Stok Masuk</a>
+      <a href="stok-keluar.html" class="block px-4 py-2 rounded hover:bg-blue-100">📤 Stok Keluar</a>
+      <a href="laporan.html" class="block px-4 py-2 rounded bg-blue-100 text-blue-800 font-semibold">📊 Laporan</a>
+      <a href="#" onclick="keluar()" class="block px-4 py-2 rounded hover:bg-red-100 text-red-600">🚪 Logout</a>
+    </nav>
+  </aside>
+
+  <!-- Main content -->
+  <main class="flex-1 p-8">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-3xl font-semibold mb-6">📊 Laporan Stok</h2>
+
+      <!-- Pencarian & Filter Tanggal -->
+      <div class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+        <div>
+          <label for="search" class="block text-sm font-medium mb-1">🔍 Cari Nama Barang</label>
+          <input type="text" id="search" placeholder="Contoh: Kipas" class="w-full border border-gray-300 p-2 rounded shadow-sm" />
+        </div>
+        <div>
+          <label for="tanggal-dari" class="block text-sm font-medium mb-1">📅 Dari Tanggal</label>
+          <input type="date" id="tanggal-dari" class="w-full border border-gray-300 p-2 rounded" />
+        </div>
+        <div>
+          <label for="tanggal-sampai" class="block text-sm font-medium mb-1">📅 Sampai Tanggal</label>
+          <input type="date" id="tanggal-sampai" class="w-full border border-gray-300 p-2 rounded" />
+        </div>
+      </div>
+
+      <!-- Stok Masuk -->
+      <section class="bg-white p-6 rounded shadow mb-8">
+        <h3 class="text-xl font-medium mb-4">➕ Riwayat Stok Masuk</h3>
+        <div class="overflow-auto">
+          <table class="w-full border text-sm text-left">
+            <thead class="bg-green-100">
+              <tr>
+                <th class="px-4 py-2">Nama Barang</th>
+                <th class="px-4 py-2 text-center">Jumlah</th>
+                <th class="px-4 py-2">Tanggal</th>
+              </tr>
+            </thead>
+            <tbody id="laporan-masuk" class="divide-y divide-gray-200 bg-white"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Stok Keluar -->
+      <section class="bg-white p-6 rounded shadow">
+        <h3 class="text-xl font-medium mb-4">📤 Riwayat Stok Keluar</h3>
+        <div class="overflow-auto">
+          <table class="w-full border text-sm text-left">
+            <thead class="bg-red-100">
+              <tr>
+                <th class="px-4 py-2">Nama Barang</th>
+                <th class="px-4 py-2 text-center">Jumlah</th>
+                <th class="px-4 py-2">Tanggal</th>
+              </tr>
+            </thead>
+            <tbody id="laporan-keluar" class="divide-y divide-gray-200 bg-white"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+</body>
+</html>

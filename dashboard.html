@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard Stok Gudang</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDZghMOYeTPRqsJuQ6dklddKL5KC-2NexA",
+      authDomain: "stok-gudang-7d7bd.firebaseapp.com",
+      databaseURL: "https://stok-gudang-7d7bd-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "stok-gudang-7d7bd",
+      storageBucket: "stok-gudang-7d7bd.firebasestorage.app",
+      messagingSenderId: "231635974096",
+      appId: "1:231635974096:web:a04d725aca41b6eeb4abd5"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    onAuthStateChanged(auth, user => {
+      if (!user) {
+        alert("Silakan login terlebih dahulu");
+        window.location.href = "index.html";
+      }
+    });
+
+    window.keluar = () => {
+      signOut(auth).then(() => window.location.href = "index.html");
+    };
+  </script>
+</head>
+<body>
+  <h2>Selamat datang di Dashboard</h2>
+  <button onclick="keluar()">Logout</button>
+</body>
+</html>

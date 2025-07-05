@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Stok Keluar</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+    import { getDatabase, ref, push, set, onValue, update, get } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDZghMOYeTPRqsJuQ6dklddKL5KC-2NexA",
+      authDomain: "stok-gudang-7d7bd.firebaseapp.com",
+      databaseURL: "https://stok-gudang-7d7bd-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "stok-gudang-7d7bd",
+      storageBucket: "stok-gudang-7d7bd.firebasestorage.app",
+      messagingSenderId: "231635974096",
+      appId: "1:231635974096:web:a04d725aca41b6eeb4abd5"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    onAuthStateChanged(auth, user => {
+      if (!user) {
+        alert("Silakan login terlebih dahulu");
+        window.location.href = "index.html";
+      }
+    });
+
+    window.keluar = () => signOut(auth).then(() => window.location.href = "index.html");
+
+    // Muat daftar barang ke dropdown
+    const select = document.getElementById("barang-select");
+    const barangRef = ref(db, "barang");
+    onValue(barangRef, snapshot => {
+      const data = snapshot.val();
+      select.innerHTML = `<option value="">Pilih Barang</option>`;
+      if (data) {
+        Object.entries(data).forEach(([id, item]) => {
+          const option = document.createElement("option");
+          option.value = id;
+          option.textContent = `${item.nama} (${item.kategori}) - stok: ${item.stok}`;
+          select.appendChild(option);
+        });
+      }
+    });
+
+    // Proses stok keluar
+    window.simpanStokKeluar = async () => {
+      const barangId = select.value;
+      const jumlah = parseInt(document.getElementById("jumlah").value);
+
+      if (!barangId || isNaN(jumlah) || jumlah <= 0) {
+        return alert("Isi data dengan benar!");
+      }
+
+      const barangSnapshot = await get(ref(db, `barang/${barangId}`));
+      const barangData = barangSnapshot.val();
+      const stokSaatIni = barangData.stok || 0;
+
+      if (jumlah > stokSaatIni) {
+        return alert(`Stok tidak cukup! Tersisa hanya ${stokSaatIni}`);
+      }
+
+      const stokBaru = stokSaatIni - jumlah;
+
+      await update(ref(db, `barang/${barangId}`), { stok: stokBaru });
+
+      const logRef = push(ref(db, "stok_keluar"));
+      await set(logRef, {
+        barang_id: barangId,
+        jumlah,
+        tanggal: new Date().toISOString()
+      });
+
+      alert("Stok keluar berhasil dicatat!");
+      document.getElementById("form").reset();
+    };
+  </script>
+</head>
+<body class="flex bg-gray-100 min-h-screen font-sans">
+
+  <!-- Sidebar -->
+  <aside class="w-64 bg-white shadow-md min-h-screen p-6 space-y-4">
+    <h1 class="text-2xl font-bold text-blue-600 mb-6">📦 Stok Gudang</h1>
+    <nav class="space-y-2">
+      <a href="dashboard.html" class="block px-4 py-2 rounded hover:bg-blue-100">🏠 Dashboard</a>
+      <a href="barang.html" class="block px-4 py-2 rounded hover:bg-blue-100">📋 Manajemen Barang</a>
+      <a href="stok-masuk.html" class="block px-4 py-2 rounded hover:bg-blue-100">➕ Stok Masuk</a>
+      <a href="stok-keluar.html" class="block px-4 py-2 rounded bg-blue-100 text-blue-800 font-semibold">📤 Stok Keluar</a>
+      <a href="#" onclick="keluar()" class="block px-4 py-2 rounded hover:bg-red-100 text-red-600">🚪 Logout</a>
+    </nav>
+  </aside>
+
+  <!-- Main content -->
+  <main class="flex-1 p-8">
+    <div class="max-w-2xl mx-auto bg-white p-6 rounded shadow">
+      <h2 class="text-2xl font-semibold mb-4">📤 Input Stok Keluar</h2>
+      <form id="form" onsubmit="event.preventDefault(); simpanStokKeluar();" class="space-y-4">
+        <div>
+          <label class="block mb-1 text-sm font-medium">Pilih Barang</label>
+          <select id="barang-select" class="w-full border p-2 rounded bg-white"></select>
+        </div>
+        <div>
+          <label class="block mb-1 text-sm font-medium">Jumlah Keluar</label>
+          <input type="number" id="jumlah" class="w-full border p-2 rounded" placeholder="Jumlah barang keluar">
+        </div>
+        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">
+          Simpan
+        </button>
+      </form>
+    </div>
+  </main>
+
+</body>
+</html>
