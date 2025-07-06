@@ -33,27 +33,29 @@
     window.keluar = () => signOut(auth).then(() => window.location.href = "/");
 
     window.tambahBarang = () => {
-      const nama = document.getElementById("nama").value.trim();
-      const kategori = document.getElementById("kategori").value.trim();
-      const stok = parseInt(document.getElementById("stok").value);
+  console.log("⏳ Proses tambah barang dimulai...");
 
-      if (!nama || !kategori || isNaN(stok)) {
-        alert("Lengkapi semua field!");
-        return;
-      }
+  const nama = document.getElementById("nama").value.trim();
+  const kategori = document.getElementById("kategori").value.trim();
+  const stok = parseInt(document.getElementById("stok").value);
 
-      const barangRef = ref(db, "barang");
-      const newRef = push(barangRef);
-      set(newRef, { nama, kategori, stok })
-        .then(() => {
-          document.getElementById("form").reset();
-          alert("Barang berhasil ditambahkan!");
-        })
-        .catch(error => {
-          alert("Gagal menyimpan data: " + error.message);
-          console.error(error);
-        });
-    };
+  if (!nama || !kategori || isNaN(stok)) {
+    alert("Lengkapi semua field!");
+    return;
+  }
+
+  const barangRef = ref(db, "barang");
+  const newRef = push(barangRef);
+  set(newRef, { nama, kategori, stok })
+    .then(() => {
+      document.getElementById("form").reset();
+      alert("Barang berhasil ditambahkan!");
+    })
+    .catch(error => {
+      alert("❌ Gagal menyimpan data: " + error.message);
+      console.error(error);
+    });
+};
 
     const tampilkanBarang = () => {
       const listRef = ref(db, "barang");
