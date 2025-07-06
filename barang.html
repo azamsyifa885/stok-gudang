@@ -58,28 +58,36 @@
 };
 
     const tampilkanBarang = () => {
-      const listRef = ref(db, "barang");
-      onValue(listRef, snapshot => {
-        const data = snapshot.val();
-        const tbody = document.getElementById("daftar-barang");
-        tbody.innerHTML = "";
-        if (data) {
-          Object.entries(data).forEach(([id, b]) => {
-            const tr = document.createElement("tr");
-            tr.className = "hover:bg-gray-50";
-            tr.innerHTML = `
-              <td class='px-4 py-2'>${b.nama}</td>
-              <td class='px-4 py-2'>${b.kategori}</td>
-              <td class='px-4 py-2 text-center'>${b.stok}</td>
-              <td class='px-4 py-2 text-center'>
-                <button onclick="hapusBarang('${id}')" class='bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600'>Hapus</button>
-              </td>`;
-            tbody.appendChild(tr);
-          });
-        }
+  const listRef = ref(db, "barang");
+  const tbody = document.getElementById("daftar-barang");
+
+  onValue(listRef, snapshot => {
+    const data = snapshot.val();
+    tbody.innerHTML = "";
+
+    if (data) {
+      Object.entries(data).forEach(([id, b]) => {
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-gray-50";
+        tr.innerHTML = `
+          <td class="px-4 py-2 border">${b.nama || '-'}</td>
+          <td class="px-4 py-2 border">${b.kategori || '-'}</td>
+          <td class="px-4 py-2 border text-center">${b.stok ?? '-'}</td>
+          <td class="px-4 py-2 border text-center">
+            <button onclick="hapusBarang('${id}')" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Hapus</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
       });
-    };
-    tampilkanBarang();
+    } else {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="4" class="text-center text-gray-500 py-4">Belum ada data barang.</td>
+        </tr>`;
+    }
+  });
+};
+
 
     window.hapusBarang = (id) => {
       if (confirm("Yakin ingin menghapus barang ini?")) {
