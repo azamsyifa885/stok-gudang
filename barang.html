@@ -14,10 +14,15 @@
 
     {firebase_config}
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
-
+    const firebaseConfig = {
+  apiKey: "AIzaSyDZghMOYeTPRqsJuQ6dklddKL5KC-2NexA",
+  authDomain: "stok-gudang-7d7bd.firebaseapp.com",
+  databaseURL: "https://stok-gudang-7d7bd-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "stok-gudang-7d7bd",
+  storageBucket: "stok-gudang-7d7bd.firebasestorage.app",
+  messagingSenderId: "231635974096",
+  appId: "1:231635974096:web:a04d725aca41b6eeb4abd5"
+};
     onAuthStateChanged(auth, user => {{
       if (!user) window.location.href = "/";
     }});
